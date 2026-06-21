@@ -23,7 +23,7 @@ app.use(cors({
     ? function (origin, callback) {
         // Allow requests with no origin (curl, server-to-server, health checks)
         if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-        return callback(new Error('Not allowed by CORS'));
+        return callback(null, false);
       }
     : true, // local dev: allow everything
 }));
