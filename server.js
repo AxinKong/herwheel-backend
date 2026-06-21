@@ -49,3 +49,18 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`HerWheel API listening on port ${PORT}`));
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => console.log(`HerWheel API listening on port ${PORT}`));
+
+// Last line of defense: log instead of crashing the whole process when
+// something unexpected slips through (e.g. a rejected promise nobody
+// awaited, or a sync error outside Express's request handling). Crashing
+// here means every in-flight request fails and the server stays down
+// until Railway notices and restarts it.
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled promise rejection:', reason);
+});
