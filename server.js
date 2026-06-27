@@ -49,8 +49,6 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`HerWheel API listening on port ${PORT}`));
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`HerWheel API listening on port ${PORT}`));
 
 // Last line of defense: log instead of crashing the whole process when
 // something unexpected slips through (e.g. a rejected promise nobody

@@ -88,4 +88,68 @@ function sendWelcomeEmail(toEmail, lang = 'en') {
   return sendEmail({ to: toEmail, subject: c.subject, html });
 }
 
-module.exports = { sendEmail, sendWelcomeEmail };
+/**
+ * Notifies a coach that a new booking request has arrived.
+ * Called immediately after a PaymentIntent is authorised.
+ */
+function sendBookingNotificationEmail({ coachEmail, coachName, learnerEmail, bookingDate, startHour, endHour, hours, amountJpy, bookingId }) {
+  const dateLabel = new Date(bookingDate).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' });
+  const subject = `【HerWheel】新しい予約リクエストが届きました / New booking request`;
+
+  const html = `
+    <div style="font-family:-apple-system,sans-serif; max-width:520px; margin:0 auto; color:#21302B;">
+      <h2 style="color:#2F4F46;">新しい予約リクエスト / New Booking Request</h2>
+      <p>こんにちは ${coachName} さん、</p>
+      <p>学員から新しい予約リクエストが届きました。<strong>7日以内</strong>に確認または拒否してください。期限を過ぎると授権が自動キャンセルされます。</p>
+      <table style="background:#F1E7D4; border-radius:10px; padding:18px; width:100%; margin:16px 0; border-collapse:collapse;">
+        <tr><td style="font-size:12px; color:#5C6F68; padding-bottom:4px;">学員メールアドレス</td></tr>
+        <tr><td style="font-size:15px; font-weight:600; padding-bottom:12px;">${learnerEmail}</td></tr>
+        <tr><td style="font-size:12px; color:#5C6F68; padding-bottom:4px;">日付</td></tr>
+        <tr><td style="font-size:15px; font-weight:600; padding-bottom:12px;">${dateLabel}</td></tr>
+        <tr><td style="font-size:12px; color:#5C6F68; padding-bottom:4px;">時間</td></tr>
+        <tr><td style="font-size:15px; font-weight:600; padding-bottom:12px;">${startHour}:00 – ${endHour}:00（${hours}時間）</td></tr>
+        <tr><td style="font-size:12px; color:#5C6F68; padding-bottom:4px;">金額</td></tr>
+        <tr><td style="font-size:15px; font-weight:600;">¥${Number(amountJpy).toLocaleString()}</td></tr>
+      </table>
+      <p style="font-size:13px; color:#5C6F68;">⚠️ 確認するまで学員のカードには請求されません。確認後に即座に引き落とされます。</p>
+      <a href="http://localhost:3000" style="display:inline-block; margin-top:8px; padding:12px 24px; background:#E8633C; color:#fff; border-radius:999px; text-decoration:none; font-weight:600;">
+        Coach Dashboard で確認する →
+      </a>
+      <hr style="border:none; border-top:1px solid #E4DCC9; margin:24px 0;">
+      <p style="font-size:12px; color:#A9BBB3;">Booking ID: ${bookingId} — HerWheel</p>
+    </div>
+  `;
+
+  return sendEmail({ to: coachEmail, subject, html });
+}
+
+/**
+ * Notifies a learner that their booking has been confirmed by the coach.
+ */
+function sendBookingConfirmedEmail({ learnerEmail, coachName, bookingDate, startHour, endHour, hours, amountJpy }) {
+  const dateLabel = new Date(bookingDate).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' });
+  const subject = `【HerWheel】予約が確認されました / Booking confirmed`;
+
+  const html = `
+    <div style="font-family:-apple-system,sans-serif; max-width:520px; margin:0 auto; color:#21302B;">
+      <h2 style="color:#2F4F46;">✓ 予約確認完了 / Booking Confirmed</h2>
+      <p>教练 <strong>${coachName}</strong> が予約を確認しました。お支払いが処理されました。</p>
+      <table style="background:#F1E7D4; border-radius:10px; padding:18px; width:100%; margin:16px 0; border-collapse:collapse;">
+        <tr><td style="font-size:12px; color:#5C6F68; padding-bottom:4px;">コーチ</td></tr>
+        <tr><td style="font-size:15px; font-weight:600; padding-bottom:12px;">${coachName}</td></tr>
+        <tr><td style="font-size:12px; color:#5C6F68; padding-bottom:4px;">日付</td></tr>
+        <tr><td style="font-size:15px; font-weight:600; padding-bottom:12px;">${dateLabel}</td></tr>
+        <tr><td style="font-size:12px; color:#5C6F68; padding-bottom:4px;">時間</td></tr>
+        <tr><td style="font-size:15px; font-weight:600; padding-bottom:12px;">${startHour}:00 – ${endHour}:00（${hours}時間）</td></tr>
+        <tr><td style="font-size:12px; color:#5C6F68; padding-bottom:4px;">お支払い金額</td></tr>
+        <tr><td style="font-size:15px; font-weight:600;">¥${Number(amountJpy).toLocaleString()}</td></tr>
+      </table>
+      <hr style="border:none; border-top:1px solid #E4DCC9; margin:24px 0;">
+      <p style="font-size:12px; color:#A9BBB3;">HerWheel — 安心・安全の女性向け運転コーチングプラットフォーム</p>
+    </div>
+  `;
+
+  return sendEmail({ to: learnerEmail, subject, html });
+}
+
+module.exports = { sendEmail, sendWelcomeEmail, sendBookingNotificationEmail, sendBookingConfirmedEmail };
